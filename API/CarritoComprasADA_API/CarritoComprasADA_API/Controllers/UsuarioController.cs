@@ -28,7 +28,6 @@ namespace CarritoComprasADA_API.Controllers
         [HttpPost("registrar")]
         public IActionResult Register([FromBody] RegistrarUsuario request)
         {
-
             try
             {
                 string encryptedPassword = _aesService.EncryptToBase64(request.Contrasena);
@@ -47,17 +46,37 @@ namespace CarritoComprasADA_API.Controllers
                 command.Parameters.AddWithValue("@RolNombre", "Cliente");
 
                 _connection.Open();
-                command.ExecuteNonQuery();
+
+                string mensaje = string.Empty;
+                using (var reader = command.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        mensaje = reader.GetString(0); // capturamos el SELECT 'mensaje'
+                    }
+                }
+
                 _connection.Close();
 
-                return Ok(new { mensaje = "Usuario registrado exitosamente." });
+                // Revisamos si el mensaje es un error esperado
+                if (mensaje.Contains("ya está en uso") || mensaje.Contains("ya está registrada") || mensaje.Contains("obligatorios") || mensaje.Contains("ya está registrado"))
+                {
+                    return BadRequest(new { mensaje }); // 400 para errores de validación
+                }
 
+                return Ok(new { mensaje }); // éxito
+
+            }
+            catch (SqlException ex)
+            {
+                return StatusCode(500, new { mensaje = "Error en base de datos.", error = ex.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { mensaje = "Error en el servidor.", error = ex.Message });
             }
         }
+
 
 
         [HttpGet("")]

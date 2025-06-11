@@ -3,6 +3,7 @@ using CarritoComprasADA.Models;
 using CarritoComprasADA_API.Helpers;
 using System.Text;
 using Newtonsoft.Json;
+using Microsoft.Win32;
 
 
 namespace CarritoComprasADA_API.Controllers
@@ -34,7 +35,7 @@ namespace CarritoComprasADA_API.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(Login model)
         {
-            if (!ModelState.IsValid)
+            if (string.IsNullOrWhiteSpace(model.Usuario) || string.IsNullOrWhiteSpace(model.Contrasena))
             {
                 ViewBag.Error = "Por favor complete todos los campos.";
                 return View(model);
@@ -56,10 +57,9 @@ namespace CarritoComprasADA_API.Controllers
                     HttpContext.Session.SetString("Rol", user.Rol);
                     HttpContext.Session.SetString("usuarioId", user.Id.ToString());
 
-                    if (user.Rol == "Administrador")
-                        return RedirectToAction("Index", "Admin");
-                    else
-                        return RedirectToAction("Index", "Client");
+                    return user.Rol == "Administrador"
+                        ? RedirectToAction("Index", "Admin")
+                        : RedirectToAction("Index", "Client");
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -79,6 +79,7 @@ namespace CarritoComprasADA_API.Controllers
             }
         }
 
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
@@ -86,13 +87,13 @@ namespace CarritoComprasADA_API.Controllers
         }
 
         [HttpGet]
-        public IActionResult Register()
+        public IActionResult Registrar()
         {
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterUser model)
+        public async Task<IActionResult> Registrar(RegisterUser model)
         {
             if (!ModelState.IsValid)
             {
@@ -113,8 +114,10 @@ namespace CarritoComprasADA_API.Controllers
                 }
                 else
                 {
-                    var error = await response.Content.ReadAsStringAsync();
-                    ModelState.AddModelError("", "Error al registrar usuario: " + error);
+                    var result = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+
+                    ModelState.AddModelError("", "Error al registrar usuario: " + responseData?.mensaje?.ToString());
                     return View(model);
                 }
             }

@@ -173,12 +173,12 @@ namespace CarritoComprasADA_API.Controllers
 
                 HttpResponseMessage response = await _httpClient.PostAsync("api/producto/registrar", content);
 
+                var result = await response.Content.ReadAsStringAsync();
+                var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadAsStringAsync();
-                    var responseData = JsonConvert.DeserializeObject<dynamic>(result);
-
-                    TempData["Mensaje"] = responseData.mensaje.ToString();
+                    TempData["Mensaje"] = responseData?.mensaje?.ToString();
                     return RedirectToAction("Producto");
                 }
                 else

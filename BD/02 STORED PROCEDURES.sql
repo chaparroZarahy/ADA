@@ -1,4 +1,4 @@
-/****** Object:  StoredProcedure [dbo].[actualizar_producto]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[actualizar_producto]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -37,7 +37,7 @@ BEGIN
 
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[confirmar_compra]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[confirmar_compra]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -77,7 +77,7 @@ BEGIN
     SELECT 'Compra parcial confirmada exitosamente.';
 END
 GO
-/****** Object:  StoredProcedure [dbo].[login_usuario]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[login_usuario]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -126,7 +126,7 @@ BEGIN
     END CATCH
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[obtener_historial_compras]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[obtener_historial_compras]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -148,7 +148,7 @@ BEGIN
     ORDER BY v.Fecha DESC;
 END
 GO
-/****** Object:  StoredProcedure [dbo].[obtener_producto]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[obtener_producto]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -163,7 +163,7 @@ BEGIN
     WHERE Cantidad > 0;
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[obtener_usuario]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[obtener_usuario]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -186,7 +186,7 @@ BEGIN
     WHERE r.Nombre != 'Administrador'; 
 END;
 GO
-/****** Object:  StoredProcedure [dbo].[obtener_venta]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[obtener_venta]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -206,7 +206,7 @@ BEGIN
 END
 
 GO
-/****** Object:  StoredProcedure [dbo].[realizar_compra]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[realizar_compra]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -251,7 +251,7 @@ END
     SELECT 'Compra realizada con éxito.';
 END
 GO
-/****** Object:  StoredProcedure [dbo].[registrar_producto]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[registrar_producto]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -262,19 +262,20 @@ CREATE Procedure [dbo].[registrar_producto]
     @Descripcion VARCHAR(250)
 AS
 BEGIN
-    IF EXISTS (SELECT 1 FROM Producto WHERE Nombre = @Nombre)
-    BEGIN
-        SELECT 'Ya existe un producto con ese nombre' AS Mensaje;
-        RETURN;
-    END
+   IF EXISTS (SELECT 1 FROM Producto WHERE Nombre = @Nombre)
+BEGIN
+    SELECT 1 AS Codigo, 'Ya existe un producto con ese nombre' AS Mensaje;
+    RETURN;
+END
 
-    INSERT INTO Producto (Nombre, Cantidad, Descripcion)
-    VALUES (@Nombre, @Cantidad, @Descripcion);
+INSERT INTO Producto (Nombre, Cantidad, Descripcion)
+VALUES (@Nombre, @Cantidad, @Descripcion);
 
-    SELECT 'Producto creado correctamente' AS Mensaje;
+SELECT 0 AS Codigo, 'Producto creado correctamente' AS Mensaje;
+
 END
 GO
-/****** Object:  StoredProcedure [dbo].[registrar_usuario]    Script Date: 10/06/2025 11:05:06 p. m. ******/
+/****** Object:  StoredProcedure [dbo].[registrar_usuario]    Script Date: 11/06/2025 10:01:30 a. m. ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -339,14 +340,14 @@ BEGIN
         -- Validar si el nombre de usuario ya existe
         IF EXISTS (SELECT 1 FROM Usuario WHERE Usuario = @Usuario)
         BEGIN
-            RAISERROR('El nombre de usuario ya está en uso.', 16, 1);
+            SELECT 'El usuario ya está registrado.' AS Mensaje;
             RETURN;
         END
 
         -- Validar si la identificación ya está registrada
         IF EXISTS (SELECT 1 FROM Usuario WHERE Identificacion = @Identificacion)
         BEGIN
-            RAISERROR('La identificación ya está registrada.', 16, 1);
+            SELECT 'La identificación ya está registrada.' AS Mensaje;
             RETURN;
         END
 

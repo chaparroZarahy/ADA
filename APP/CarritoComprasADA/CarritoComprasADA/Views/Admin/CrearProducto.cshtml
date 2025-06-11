@@ -1,4 +1,5 @@
 ﻿@model CarritoComprasADA.Models.Product
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
 @{
     ViewData["Title"] = "Crear Producto";
@@ -7,10 +8,12 @@
 <h2>Registrar nuevo producto</h2>
 
 <form asp-action="CrearProducto" method="post">
-    <div class="mb-3">
-        <label>Nombre</label>
-        <input asp-for="Nombre" class="form-control" required />
+    <div class="form-group">
+        @Html.LabelFor(model => model.Nombre)
+        @Html.TextBoxFor(model => model.Nombre, new { @class = "form-control", autocomplete = "off" })
+        @Html.ValidationMessageFor(model => model.Nombre, "", new { @class = "text-danger" })
     </div>
+
     <div class="mb-3">
         <label>Cantidad</label>
         <input asp-for="Cantidad" type="number" class="form-control" required />
@@ -22,3 +25,12 @@
     <button type="submit" class="btn btn-success">Crear</button>
     <a href="/Admin/Producto" class="btn btn-secondary">Cancelar</a>
 </form>
+
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+

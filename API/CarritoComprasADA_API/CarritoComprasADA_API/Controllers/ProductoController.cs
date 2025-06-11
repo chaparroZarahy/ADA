@@ -81,13 +81,17 @@ namespace CarritoComprasADA_API.Controllers
                 _connection.Open();
                 using var reader = command.ExecuteReader();
 
+                int codigo = 0;
                 string mensaje = "Producto creado correctamente.";
+
                 if (reader.Read())
                 {
-                    mensaje = reader.GetString(0);
+                    codigo = reader.GetInt32(0);
+                    mensaje = reader.GetString(1);
                 }
 
-                return Ok(new { mensaje });
+                return Ok(new { codigo, mensaje });
+
             }
             catch (SqlException ex)
             {

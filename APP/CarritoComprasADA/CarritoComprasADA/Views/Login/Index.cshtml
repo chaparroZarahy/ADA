@@ -1,6 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Iniciar Sesión";
 }
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model CarritoComprasADA.Models.Login
+
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger text-center">
+        @ViewBag.Error
+    </div>
+}
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -46,19 +63,23 @@
         <div class="card-body">
             <form asp-action="Index" method="post">
                 <div class="mb-3">
-                    <label class="form-label">Usuario</label>
-                    <input name="Usuario" class="form-control" required autocomplete="off" />
+                    <label asp-for="Usuario" class="form-label"></label>
+                    <input asp-for="Usuario" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="Usuario" class="text-danger"></span>
                 </div>
+
                 <div class="mb-4">
-                    <label class="form-label">Contraseña</label>
-                    <input type="password" name="Contrasena" class="form-control" required autocomplete="off" />
+                    <label asp-for="Contrasena" class="form-label"></label>
+                    <input asp-for="Contrasena" type="password" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="Contrasena" class="text-danger"></span>
                 </div>
+
                 <button type="submit" class="btn btn-success w-100">Ingresar</button>
             </form>
 
             <div class="text-center mt-4">
                 <span>¿No tienes cuenta?</span>
-                <a href="/Login/Register" class="btn btn-outline-success ms-2">
+                <a href="/Login/Registrar" class="btn btn-outline-success ms-2">
                     <i class="bi bi-person-plus-fill"></i> Regístrate
                 </a>
             </div>
@@ -67,3 +88,8 @@
        
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
