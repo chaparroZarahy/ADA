@@ -1,0 +1,24 @@
+﻿@model CarritoComprasADA.Models.Product
+
+@{
+    ViewData["Title"] = "Crear Producto";
+}
+
+<h2>Registrar nuevo producto</h2>
+
+<form asp-action="CrearProducto" method="post">
+    <div class="mb-3">
+        <label>Nombre</label>
+        <input asp-for="Nombre" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Cantidad</label>
+        <input asp-for="Cantidad" type="number" class="form-control" required />
+    </div>
+    <div class="mb-3">
+        <label>Descripción</label>
+        <textarea asp-for="Descripcion" class="form-control"></textarea>
+    </div>
+    <button type="submit" class="btn btn-success">Crear</button>
+    <a href="/Admin/Producto" class="btn btn-secondary">Cancelar</a>
+</form>

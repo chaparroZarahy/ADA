@@ -1,0 +1,35 @@
+# Archivos de Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Archivos de compilación
+bin/
+obj/
+*.exe
+*.dll
+*.pdb
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Archivos de configuración locales
+appsettings.*.json
+
+# Archivos de publicación
+publish/
+out/
+
+# Carpetas de dependencias
+packages/
+node_modules/
+
+# Archivos de configuración de Rider
+.idea/
+
+# Archivos de sistema
+Thumbs.db
+.DS_Store

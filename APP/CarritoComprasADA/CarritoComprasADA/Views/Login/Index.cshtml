@@ -1,0 +1,69 @@
+﻿@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .login-card {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        background: white;
+    }
+
+    .login-header {
+        background: #3CB371; 
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-top-left-radius: 15px;
+        border-top-right-radius: 15px;
+        font-size: 1.3rem;
+        font-weight: 600;
+    }
+
+</style>
+
+<div class="login-container">
+    <div class="card login-card">
+        <div class="login-header">
+            Iniciar Sesión
+        </div>
+        <div class="card-body">
+            <form asp-action="Index" method="post">
+                <div class="mb-3">
+                    <label class="form-label">Usuario</label>
+                    <input name="Usuario" class="form-control" required />
+                </div>
+                <div class="mb-4">
+                    <label class="form-label">Contraseña</label>
+                    <input type="password" name="Contrasena" class="form-control" required />
+                </div>
+                <button type="submit" class="btn btn-success w-100">Ingresar</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <span>¿No tienes cuenta?</span>
+                <a href="/Login/Register" class="btn btn-outline-success ms-2">
+                    <i class="bi bi-person-plus-fill"></i> Regístrate
+                </a>
+            </div>
+        </div>
+
+       
+    </div>
+</div>
