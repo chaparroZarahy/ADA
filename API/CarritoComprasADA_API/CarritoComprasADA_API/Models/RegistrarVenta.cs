@@ -1,4 +1,4 @@
-﻿namespace CarritoComprasADA.Models
+﻿namespace CarritoComprasADA_API.Models
 {
     public class RegistrarVenta
     {

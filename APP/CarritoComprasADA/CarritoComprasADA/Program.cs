@@ -1,11 +1,9 @@
-using CarritoComprasADA_API.Data;
 using CarritoComprasADA_API.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<DataConnection>();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSession();

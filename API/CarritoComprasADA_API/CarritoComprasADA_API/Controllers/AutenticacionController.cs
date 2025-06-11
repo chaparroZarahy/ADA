@@ -9,7 +9,7 @@ using CarritoComprasADA_API.Helpers;
 namespace CarritoComprasADA_API.Controllers
 {
     [ApiController]
-    [Route("api/auth")]
+    [Route("api/autenticacion")]
     public class AuthController : ControllerBase
     {
         private readonly IConfiguration _configuration;

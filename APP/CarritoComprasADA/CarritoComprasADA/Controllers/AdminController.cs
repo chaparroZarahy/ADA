@@ -3,22 +3,22 @@ using System.Data.SqlClient;
 using System.Data;
 using CarritoComprasADA.Models;
 using Newtonsoft.Json;
+using System.Text;
+using CarritoComprasADA.Filters;
 
 namespace CarritoComprasADA_API.Controllers
 {
+    [AutorizacionTipoUsuario("Administrador")]
+
     public class AdminController : Controller
     {
         string mensaje = "";
 
         private readonly IConfiguration _configuration;
-        private readonly string _connectionString;
-        private readonly SqlConnection _connection;
         private readonly HttpClient _httpClient;
         public AdminController(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("DefaultConnection");
-            _connection = new SqlConnection(_connectionString);
 
             _httpClient = new HttpClient();
             _httpClient.BaseAddress = new Uri("https://localhost:7232/");
@@ -37,7 +37,6 @@ namespace CarritoComprasADA_API.Controllers
             return View();
         }
 
-        [HttpGet]
         [HttpGet]
         public async Task<IActionResult> Producto()
         {
@@ -64,129 +63,141 @@ namespace CarritoComprasADA_API.Controllers
             }
         }
         [HttpPost]
-        public IActionResult ActualizarProducto(Product producto)
+        public async Task<IActionResult> ActualizarProducto(Product producto)
         {
-            using var command = new SqlCommand("actualizar_producto", _connection)
+            var usuarioIdStr = HttpContext.Session.GetString("usuarioId");
+            if (string.IsNullOrEmpty(usuarioIdStr) || !int.TryParse(usuarioIdStr, out int usuarioId))
             {
-                CommandType = CommandType.StoredProcedure
-            };
-
-            command.Parameters.AddWithValue("@productoId", producto.Id);
-            command.Parameters.AddWithValue("@cantidad", producto.Cantidad);
-
-
-            if (HttpContext.Session.GetString("usuarioId") != null)
-            {
-                command.Parameters.AddWithValue("@usuarioId", Convert.ToInt32(HttpContext.Session.GetString("usuarioId")));
+                return Unauthorized();
             }
-            else
-            {
-                var usuarioIdEnSesion = HttpContext.Session.GetString("usuarioId");
 
-                if (string.IsNullOrEmpty(usuarioIdEnSesion))
+            producto.UsuarioId = usuarioId;
+
+            try
+            {
+
+                string url = $"api/producto/actualizar?id={Uri.EscapeDataString(producto.Id.ToString())}";
+
+
+                var json = JsonConvert.SerializeObject(producto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PutAsync(url, content);
+
+
+                if (!response.IsSuccessStatusCode)
                 {
-                    return Unauthorized();
+                    TempData["Mensaje"] = "Error al actualizar el producto.";
+                    return RedirectToAction("Producto");
                 }
 
-                command.Parameters.AddWithValue("@usuarioId", Convert.ToInt32(usuarioIdEnSesion));
-
+                var result = await response.Content.ReadAsStringAsync();
+                var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+                TempData["Mensaje"] = responseData?.mensaje?.ToString() ?? "Producto actualizado correctamente.";
             }
-
-            _connection.Open();
-            using var reader = command.ExecuteReader();
-
-            if (reader.Read())
+            catch (Exception ex)
             {
-                mensaje = reader.GetString(0); 
+                TempData["Mensaje"] = $"Error inesperado: {ex.Message}";
             }
 
-            _connection.Close();
-
-            TempData["Mensaje"] = mensaje;
             return RedirectToAction("Producto");
         }
 
 
         [HttpGet]
-        public IActionResult Usuario()
+        public async Task<IActionResult> Usuario()
         {
-            var clientes = new List<UserClient>();
 
-            using var command = new SqlCommand("obtener_usuario", _connection)
+            try
             {
-                CommandType = CommandType.StoredProcedure
-            };
-
-            _connection.Open();
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
-            {
-                clientes.Add(new UserClient
+                HttpResponseMessage response = await _httpClient.GetAsync("api/usuario");
+                if (response.IsSuccessStatusCode)
                 {
-                    Id = reader.GetInt32(0),
-                    Nombre = reader.GetString(1),
-                    Usuario = reader.GetString(2),
-                    Identificacion = reader.GetString(3),
-                    Telefono = reader.GetString(4)
-                });
-            }
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var productos = JsonConvert.DeserializeObject<List<UserClient>>(jsonResponse);
 
-            return View(clientes);
+                    return View(productos);
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudieron obtener los usuarios del servidor.";
+                    return View(new List<UserClient>());
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al conectar con el servidor: " + ex.Message;
+                return View(new List<UserClient>());
+            }
         }
 
         [HttpGet]
-        public IActionResult Venta()
+        public async Task<IActionResult> Venta()
         {
-            var venta = new List<Venta>();
-            using var command = new SqlCommand("obtener_venta", _connection)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
 
-            _connection.Open();
-            using var reader = command.ExecuteReader();
-
-            while (reader.Read())
+            try
             {
-                 venta.Add(new Venta
+                HttpResponseMessage response = await _httpClient.GetAsync("api/venta");
+                if (response.IsSuccessStatusCode)
                 {
-                    Id = reader.GetInt32(0),
-                    Cliente = reader.GetString(1),
-                    Producto = reader.GetString(2),
-                    Cantidad = reader.GetInt32(3),
-                    Fecha = reader.GetDateTime(4)
-                });
-            }
+                    var jsonResponse = await response.Content.ReadAsStringAsync();
+                    var ventas = JsonConvert.DeserializeObject<List<Venta>>(jsonResponse);
 
-            return View(venta);
+                    return View(ventas);
+                }
+                else
+                {
+                    ViewBag.Error = "No se pudieron obtener las ventas del servidor.";
+                    return View(new List<Venta>());
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = "Error al conectar con el servidor: " + ex.Message;
+                return View(new List<Venta>());
+            }
         }
 
         [HttpPost]
-        public IActionResult CrearProducto(Product producto)
+        public async Task<IActionResult> CrearProducto(Product producto)
         {
-          
-            using var command = new SqlCommand("registrar_producto", _connection)
+            if (!ModelState.IsValid)
             {
-                CommandType = CommandType.StoredProcedure
-            };
+                return View(producto);
+            }
 
-            command.Parameters.AddWithValue("@Nombre", producto.Nombre);
-            command.Parameters.AddWithValue("@Cantidad", producto.Cantidad);
-            command.Parameters.AddWithValue("@Descripcion", producto.Descripcion);
+            try
+            {
+                var json = JsonConvert.SerializeObject(producto);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            _connection.Open();
-            using var reader = command.ExecuteReader();
-            if (reader.Read())
-                mensaje = reader.GetString(0);
+                HttpResponseMessage response = await _httpClient.PostAsync("api/producto/registrar", content);
 
-            TempData["Mensaje"] = mensaje;
-            return RedirectToAction("Producto");
+                if (response.IsSuccessStatusCode)
+                {
+                    var result = await response.Content.ReadAsStringAsync();
+                    var responseData = JsonConvert.DeserializeObject<dynamic>(result);
+
+                    TempData["Mensaje"] = responseData.mensaje.ToString();
+                    return RedirectToAction("Producto");
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError(string.Empty, $"Error al registrar: {error}");
+                    return View(producto);
+                }
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError(string.Empty, "Error inesperado: " + ex.Message);
+                return View(producto);
+            }
         }
 
         public IActionResult CerrarSesion()
         {
-            HttpContext.Session.Clear(); 
+            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Login");
         }
 

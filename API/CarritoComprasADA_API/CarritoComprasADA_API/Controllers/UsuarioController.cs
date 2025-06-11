@@ -9,7 +9,7 @@ using CarritoComprasADA_API.Helpers;
 namespace CarritoComprasADA_API.Controllers
 {
     [ApiController]
-    [Route("api/user")]
+    [Route("api/usuario")]
     public class UsuarioController : ControllerBase
     {
         private readonly IConfiguration _configuration;
@@ -25,7 +25,7 @@ namespace CarritoComprasADA_API.Controllers
             _connection = new SqlConnection(_connectionString);
         }
 
-        [HttpPost("register")]
+        [HttpPost("registrar")]
         public IActionResult Register([FromBody] RegistrarUsuario request)
         {
 
@@ -51,6 +51,43 @@ namespace CarritoComprasADA_API.Controllers
                 _connection.Close();
 
                 return Ok(new { mensaje = "Usuario registrado exitosamente." });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { mensaje = "Error en el servidor.", error = ex.Message });
+            }
+        }
+
+
+        [HttpGet("")]
+        public IActionResult Obtener()
+        {
+
+            try
+            {
+                var clientes = new List<Cliente>();
+                using var command = new SqlCommand("obtener_usuario", _connection)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                _connection.Open();
+                using var reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    clientes.Add(new Cliente
+                    {
+                        Id = reader.GetInt32(0),
+                        Nombre = reader.GetString(1),
+                        Usuario = reader.GetString(2),
+                        Identificacion = reader.GetString(3),
+                        Telefono = reader.GetString(4)
+                    });
+                }
+
+                return Ok(clientes);
 
             }
             catch (Exception ex)

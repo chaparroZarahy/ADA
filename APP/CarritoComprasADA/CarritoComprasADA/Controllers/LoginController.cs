@@ -45,7 +45,7 @@ namespace CarritoComprasADA_API.Controllers
                 var json = JsonConvert.SerializeObject(model);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync("api/auth/login", content);
+                HttpResponseMessage response = await _httpClient.PostAsync("api/autenticacion/login", content);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -59,7 +59,7 @@ namespace CarritoComprasADA_API.Controllers
                     if (user.Rol == "Administrador")
                         return RedirectToAction("Index", "Admin");
                     else
-                        return RedirectToAction("Index", "Cliente");
+                        return RedirectToAction("Index", "Client");
                 }
                 else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
@@ -104,7 +104,7 @@ namespace CarritoComprasADA_API.Controllers
                 var json = JsonConvert.SerializeObject(model);
                 var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync("api/user/register", content);
+                HttpResponseMessage response = await _httpClient.PostAsync("api/usuario/registrar", content);
 
                 if (response.IsSuccessStatusCode)
                 {

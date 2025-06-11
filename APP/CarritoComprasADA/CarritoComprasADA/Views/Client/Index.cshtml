@@ -16,50 +16,50 @@
 
     <h2 class="mb-4 text-center">Productos disponibles</h2>
 
-            @* Mostrar botón para confirmar compra parcial si aplica *@
-            @if (TempData["Mensaje"] != null)
+    @* Mostrar botón para confirmar compra parcial si aplica *@
+    @if (TempData["Mensaje"] != null)
+    {
+        var msj = TempData["Mensaje"].ToString();
+        <div class="alert alert-warning text-center">
+            @msj
+
+            @if (TempData["CantidadDisponible"] != null && TempData["ProductoId"] != null)
             {
-                var msj = TempData["Mensaje"].ToString();
-                <div class="alert alert-warning text-center">
-                    @msj
-
-                    @if (TempData["CantidadDisponible"] != null && TempData["ProductoId"] != null)
-                    {
-                <form asp-action="confirmarcompra" method="post" class="mt-2">
-                            <input type="hidden" name="ProductoId" value="@TempData["ProductoId"]" />
-                            <input type="hidden" name="Cantidad" value="@TempData["CantidadDisponible"]" />
-                            <button type="submit" class="btn btn-sm btn-warning">
-                                ✔ Sí, comprar @TempData["CantidadDisponible"] unidades
-                            </button>
-                        </form>
-                    }
-                </div>
+                <form asp-action="confirmarCompra" method="post" class="mt-2">
+                    <input type="hidden" name="ProductoId" value="@TempData["ProductoId"]" />
+                    <input type="hidden" name="Cantidad" value="@TempData["CantidadDisponible"]" />
+                    <button type="submit" class="btn btn-sm btn-warning">
+                        ✔ Sí, comprar @TempData["CantidadDisponible"] unidades
+                    </button>
+                </form>
             }
-
         </div>
-    
+    }
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        @foreach (var p in Model)
-        {
-            <div class="col">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">@p.Nombre</h5>
-                        <p class="card-text">@p.Descripcion</p>
-                        <p><strong>Disponible:</strong> @p.Cantidad</p>
+</div>
 
-                        <form asp-action="Comprar" method="post">
-                            <input type="hidden" name="ProductoId" value="@p.Id" />
-                        <input type="number" name="Cantidad" min="1" 
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var p in Model)
+    {
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">@p.Nombre</h5>
+                    <p class="card-text">@p.Descripcion</p>
+                    <p><strong>Disponible:</strong> @p.Cantidad</p>
+
+                    <form asp-action="Comprar" method="post">
+                        <input type="hidden" name="ProductoId" value="@p.Id" />
+                        <input type="number" name="Cantidad" min="1"
                                required class="form-control mb-2" placeholder="Cantidad a comprar" />
 
-                            <button type="submit" class="btn btn-primary w-100">🛒 Comprar</button>
-                        </form>
-                    </div>
+                        <button type="submit" class="btn btn-primary w-100">🛒 Comprar</button>
+                    </form>
                 </div>
             </div>
-        }
-    </div>
+        </div>
+    }
+</div>
 
 </div>
